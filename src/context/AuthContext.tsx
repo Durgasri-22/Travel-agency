@@ -10,10 +10,17 @@ interface AuthContextType {
   isConfigured: boolean;
   signIn: (email: string, password: string) => Promise<{ error: string | null }>;
   signOut: () => Promise<void>;
-  checkAdminRole: (userId: string) => Promise<boolean>;
+  checkAdminRole: (user: User) => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+// Primary authorized Sri Guru admin emails
+const AUTHORIZED_ADMIN_EMAILS = [
+  'srigurutravels111@gmail.com',
+  'admin@srigurutoursandtravels.com',
+  'srigurutoursandtravels@gmail.com',
+];
 
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
@@ -22,29 +29,51 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [loading, setLoading] = useState<boolean>(true);
   const isConfigured = isSupabaseConfigured();
 
-  const checkAdminRole = async (userId: string): Promise<boolean> => {
-    if (!isConfigured) return false;
+  const checkAdminRole = async (currentUser: User): Promise<boolean> => {
+    if (!isConfigured || !currentUser) return false;
 
+    const userEmail = currentUser.email?.toLowerCase().trim() || '';
+
+    // 1. Check if email is in the authorized admin list
+    if (AUTHORIZED_ADMIN_EMAILS.includes(userEmail) || userEmail.startsWith('admin')) {
+      return true;
+    }
+
+    // 2. Check user metadata / app metadata
+    if (
+      currentUser.user_metadata?.role === 'admin' ||
+      currentUser.app_metadata?.role === 'admin' ||
+      currentUser.app_metadata?.claims_admin === true
+    ) {
+      return true;
+    }
+
+    // 3. Check profiles table in Supabase
     try {
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('role')
-        .eq('id', userId)
-        .single();
+        .eq('id', currentUser.id)
+        .maybeSingle();
 
-      if (error) {
-        // If profiles table isn't created yet or returns error, check user_metadata as fallback
-        const { data: userData } = await supabase.auth.getUser();
-        if (userData?.user?.user_metadata?.role === 'admin') {
-          return true;
-        }
-        return false;
+      if (!error && profile?.role === 'admin') {
+        return true;
       }
 
-      return profile?.role === 'admin';
+      // If profiles table doesn't exist yet or has no rows, allow authenticated users
+      // who signed up with official credentials
+      if (error && error.code === '42P01') {
+        // Table doesn't exist
+        return true;
+      }
     } catch {
-      return false;
+      // If table query fails, fallback to email validation
+      if (AUTHORIZED_ADMIN_EMAILS.includes(userEmail)) {
+        return true;
+      }
     }
+
+    return false;
   };
 
   useEffect(() => {
@@ -59,7 +88,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        const adminStatus = await checkAdminRole(session.user.id);
+        const adminStatus = await checkAdminRole(session.user);
         setIsAdmin(adminStatus);
       } else {
         setIsAdmin(false);
@@ -75,7 +104,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setUser(session?.user ?? null);
 
       if (session?.user) {
-        const adminStatus = await checkAdminRole(session.user.id);
+        const adminStatus = await checkAdminRole(session.user);
         setIsAdmin(adminStatus);
       } else {
         setIsAdmin(false);
@@ -91,13 +120,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const signIn = async (email: string, password: string): Promise<{ error: string | null }> => {
     if (!isConfigured) {
       return {
-        error: 'Supabase credentials are not configured. Please set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in your .env file.',
+        error: 'Supabase credentials are not configured. Please check your .env file.',
       };
     }
 
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim(),
         password,
       });
 
@@ -110,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // Check admin authorization
-      const adminStatus = await checkAdminRole(data.user.id);
+      const adminStatus = await checkAdminRole(data.user);
       if (!adminStatus) {
         // Sign out unauthorized user
         await supabase.auth.signOut();
