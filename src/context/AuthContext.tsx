@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
+import { ProfileDB } from '../types/admin';
 
 interface AuthContextType {
   user: User | null;
@@ -15,13 +16,6 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-// Primary authorized Sri Guru admin emails
-const AUTHORIZED_ADMIN_EMAILS = [
-  'srigurutravels111@gmail.com',
-  'admin@srigurutoursandtravels.com',
-  'srigurutoursandtravels@gmail.com',
-];
-
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
@@ -32,48 +26,38 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const checkAdminRole = async (currentUser: User): Promise<boolean> => {
     if (!isConfigured || !currentUser) return false;
 
-    const userEmail = currentUser.email?.toLowerCase().trim() || '';
-
-    // 1. Check if email is in the authorized admin list
-    if (AUTHORIZED_ADMIN_EMAILS.includes(userEmail) || userEmail.startsWith('admin')) {
-      return true;
-    }
-
-    // 2. Check user metadata / app metadata
-    if (
-      currentUser.user_metadata?.role === 'admin' ||
-      currentUser.app_metadata?.role === 'admin' ||
-      currentUser.app_metadata?.claims_admin === true
-    ) {
-      return true;
-    }
-
-    // 3. Check profiles table in Supabase
     try {
+      // 1. Retrieve the user's admin profile from the Supabase profiles table
       const { data: profile, error } = await supabase
         .from('profiles')
-        .select('role')
+        .select('id, email, role')
         .eq('id', currentUser.id)
         .maybeSingle();
 
-      if (!error && profile?.role === 'admin') {
+      if (error) {
+        console.error('Error fetching admin profile from Supabase:', error.message);
+        // If profiles table query fails, also verify if app_metadata/user_metadata contains role: 'admin'
+        if (currentUser.app_metadata?.role === 'admin' || currentUser.user_metadata?.role === 'admin') {
+          return true;
+        }
+        return false;
+      }
+
+      // 2. Strict verification that profile role === 'admin'
+      if (profile && (profile as ProfileDB).role === 'admin') {
         return true;
       }
 
-      // If profiles table doesn't exist yet or has no rows, allow authenticated users
-      // who signed up with official credentials
-      if (error && error.code === '42P01') {
-        // Table doesn't exist
+      // 3. Fallback check on user app_metadata if set in Supabase Auth
+      if (currentUser.app_metadata?.role === 'admin') {
         return true;
       }
-    } catch {
-      // If table query fails, fallback to email validation
-      if (AUTHORIZED_ADMIN_EMAILS.includes(userEmail)) {
-        return true;
-      }
+
+      return false;
+    } catch (err) {
+      console.error('Unexpected error checking admin role:', err);
+      return false;
     }
-
-    return false;
   };
 
   useEffect(() => {
@@ -82,37 +66,54 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       return;
     }
 
-    // Check active session
+    let isMounted = true;
+
+    // Check active session on initial load
     supabase.auth.getSession().then(async ({ data: { session } }) => {
+      if (!isMounted) return;
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
         const adminStatus = await checkAdminRole(session.user);
-        setIsAdmin(adminStatus);
+        if (isMounted) {
+          setIsAdmin(adminStatus);
+        }
       } else {
-        setIsAdmin(false);
+        if (isMounted) {
+          setIsAdmin(false);
+        }
       }
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     });
 
     // Listen for auth state changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
+      if (!isMounted) return;
       setSession(session);
       setUser(session?.user ?? null);
 
       if (session?.user) {
         const adminStatus = await checkAdminRole(session.user);
-        setIsAdmin(adminStatus);
+        if (isMounted) {
+          setIsAdmin(adminStatus);
+        }
       } else {
-        setIsAdmin(false);
+        if (isMounted) {
+          setIsAdmin(false);
+        }
       }
-      setLoading(false);
+      if (isMounted) {
+        setLoading(false);
+      }
     });
 
     return () => {
+      isMounted = false;
       subscription.unsubscribe();
     };
   }, [isConfigured]);
@@ -138,7 +139,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         return { error: 'Authentication failed. Please check your credentials.' };
       }
 
-      // Check admin authorization
+      // Check admin authorization via profiles table
       const adminStatus = await checkAdminRole(data.user);
       if (!adminStatus) {
         // Sign out unauthorized user

@@ -7,17 +7,24 @@ create table if not exists public.profiles (
   id uuid references auth.users on delete cascade primary key,
   email text not null,
   role text not null default 'user',
-  created_at timestamp with time zone default timezone('utc'::text, now()) not null
+  created_at timestamp with time zone default timezone('utc'::text, now()) not null,
+  updated_at timestamp with time zone default timezone('utc'::text, now()) not null
 );
 
 alter table public.profiles enable row level security;
 
+-- Policy: Authenticated users can read their own profile
+drop policy if exists "Users can read own profile" on public.profiles;
 create policy "Users can read own profile" 
   on public.profiles for select 
+  to authenticated
   using (auth.uid() = id);
 
+-- Policy: Admins can view all profiles
+drop policy if exists "Admins can view all profiles" on public.profiles;
 create policy "Admins can view all profiles"
   on public.profiles for select 
+  to authenticated
   using (
     exists (
       select 1 from public.profiles
@@ -25,13 +32,26 @@ create policy "Admins can view all profiles"
     )
   );
 
--- Auto-create profile trigger on signup
+-- Auto-create/update profile trigger on user creation
 create or replace function public.handle_new_user()
 returns trigger as $$
 begin
   insert into public.profiles (id, email, role)
-  values (new.id, new.email, 'user')
-  on conflict (id) do nothing;
+  values (
+    new.id,
+    new.email,
+    case 
+      when lower(new.email) in ('srigurutravels111@gmail.com', 'admin@srigurutoursandtravels.com') then 'admin' 
+      else 'user' 
+    end
+  )
+  on conflict (id) do update 
+    set email = excluded.email,
+        role = case 
+          when lower(excluded.email) in ('srigurutravels111@gmail.com', 'admin@srigurutoursandtravels.com') then 'admin' 
+          else public.profiles.role 
+        end,
+        updated_at = now();
   return new;
 end;
 $$ language plpgsql security definer;
@@ -40,6 +60,13 @@ drop trigger if exists on_auth_user_created on auth.users;
 create trigger on_auth_user_created
   after insert on auth.users
   for each row execute procedure public.handle_new_user();
+
+-- Ensure existing auth.users record for srigurutravels111@gmail.com has an admin profile
+insert into public.profiles (id, email, role)
+select id, email, 'admin'
+from auth.users
+where lower(email) = 'srigurutravels111@gmail.com'
+on conflict (id) do update set role = 'admin', updated_at = now();
 
 -- ==========================================================
 -- 2. Tour Packages Table
