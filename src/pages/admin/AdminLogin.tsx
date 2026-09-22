@@ -117,7 +117,7 @@ export const AdminLogin: React.FC = () => {
                   type="email"
                   required
                   autoComplete="email"
-                  placeholder="admin@srigurutoursandtravels.com"
+                  placeholder="srigurutravels111@gmail.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   disabled={isSubmitting}
