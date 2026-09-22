@@ -1,6 +1,6 @@
 import React from 'react';
-import { Phone, MessageSquare, ChevronRight } from 'lucide-react';
-import { InstagramIcon } from './Icons';
+import { Phone, MessageSquare, ChevronRight, MapPin } from 'lucide-react';
+import { InstagramIcon, YouTubeIcon, FacebookIcon } from './Icons';
 import { COMPANY, createWhatsAppUrl, defaultWhatsAppMessage } from '../data/company';
 
 export const Footer: React.FC = () => {
@@ -16,7 +16,7 @@ export const Footer: React.FC = () => {
   ];
 
   const fleetLinks = [
-    { name: 'Force Traveller', href: '#fleet' },
+    { name: 'Force Traveller (AC/Non-AC)', href: '#fleet' },
     { name: 'Passenger Car / SUV', href: '#fleet' },
     { name: 'SML Mini Bus', href: '#fleet' },
     { name: 'Luxury Tourist Coach', href: '#fleet' },
@@ -36,56 +36,87 @@ export const Footer: React.FC = () => {
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 lg:gap-12 pb-12 border-b border-slate-800/80">
           
-          {/* Brand Info */}
+          {/* Brand Info & Address */}
           <div className="lg:col-span-5 space-y-4">
             <div className="flex items-center gap-3">
-              <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-brand-gold-500 to-brand-gold-200 shadow-gold-sm">
+              <div className="w-12 h-12 rounded-full p-0.5 bg-gradient-to-tr from-brand-gold-500 to-brand-gold-200 shadow-gold-sm flex-shrink-0">
                 <img
                   src="/logo.png"
                   alt="Sri Guru Tours and Travels"
-                  className="w-full h-full object-cover rounded-full"
+                  className="w-full h-full object-cover rounded-full bg-brand-navy-950"
                 />
               </div>
               <div>
                 <h3 className="font-serif text-xl font-bold text-gold-metallic uppercase tracking-wider">
-                  Sri Guru
+                  Sri Guru Tours & Travels
                 </h3>
-                <p className="text-xs text-slate-400 uppercase tracking-widest font-medium">
-                  Tours and Travels
+                <p className="text-xs text-brand-gold-300 font-medium">
+                  {COMPANY.tamilName} • {COMPANY.proprietor}
                 </p>
               </div>
             </div>
 
-            <p className="text-sm text-slate-400 leading-relaxed max-w-sm">
-              Providing dependable and comfortable travel solutions for outstation journeys, family holidays, group tours, and event transportation across South India.
+            <p className="text-xs sm:text-sm text-slate-400 leading-relaxed max-w-sm">
+              Providing dependable, safe, and comfortable travel solutions with A/C & Non A/C vehicles for outstation journeys, tours, and group transit across South India.
             </p>
 
-            {/* Social Links */}
-            <div className="pt-2 flex items-center gap-3">
+            {/* Address */}
+            <div className="pt-1 flex items-start gap-2.5 text-xs text-slate-400 max-w-sm">
+              <MapPin className="w-4 h-4 text-brand-gold-400 flex-shrink-0 mt-0.5" />
+              <span>{COMPANY.address}</span>
+            </div>
+
+            {/* Social Links (Instagram, YouTube, Facebook, WhatsApp, Phone) */}
+            <div className="pt-2 flex items-center gap-2.5">
+              <a
+                href={COMPANY.youtube}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-full bg-brand-navy-900 border border-slate-700 hover:border-brand-gold-400 text-slate-300 hover:text-red-400 transition-colors"
+                aria-label="Sri Guru Tours YouTube Channel"
+                title="YouTube Channel"
+              >
+                <YouTubeIcon className="w-4 h-4" />
+              </a>
+
+              <a
+                href={COMPANY.facebook}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2.5 rounded-full bg-brand-navy-900 border border-slate-700 hover:border-brand-gold-400 text-slate-300 hover:text-blue-400 transition-colors"
+                aria-label="Sri Guru Tours Facebook Page"
+                title="Facebook Page"
+              >
+                <FacebookIcon className="w-4 h-4" />
+              </a>
+
               <a
                 href={COMPANY.instagram}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-full bg-brand-navy-900 border border-slate-700 hover:border-brand-gold-400 text-slate-300 hover:text-white transition-colors"
+                className="p-2.5 rounded-full bg-brand-navy-900 border border-slate-700 hover:border-brand-gold-400 text-slate-300 hover:text-pink-400 transition-colors"
                 aria-label="Sri Guru Tours Instagram"
+                title="Instagram"
               >
-                <InstagramIcon className="w-4 h-4 text-pink-400" />
+                <InstagramIcon className="w-4 h-4" />
               </a>
               
               <a
                 href={createWhatsAppUrl(defaultWhatsAppMessage)}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-2.5 rounded-full bg-brand-navy-900 border border-slate-700 hover:border-brand-gold-400 text-slate-300 hover:text-white transition-colors"
+                className="p-2.5 rounded-full bg-brand-navy-900 border border-slate-700 hover:border-brand-gold-400 text-slate-300 hover:text-emerald-400 transition-colors"
                 aria-label="WhatsApp Sri Guru Tours"
+                title="WhatsApp"
               >
-                <MessageSquare className="w-4 h-4 text-emerald-400" />
+                <MessageSquare className="w-4 h-4" />
               </a>
 
               <a
                 href={`tel:${COMPANY.rawPhone}`}
-                className="p-2.5 rounded-full bg-brand-navy-900 border border-slate-700 hover:border-brand-gold-400 text-slate-300 hover:text-white transition-colors"
+                className="p-2.5 rounded-full bg-brand-navy-900 border border-slate-700 hover:border-brand-gold-400 text-slate-300 hover:text-brand-gold-400 transition-colors"
                 aria-label="Call Sri Guru Tours"
+                title="Call"
               >
                 <Phone className="w-4 h-4 text-brand-gold-400" />
               </a>
@@ -93,7 +124,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Quick Links */}
-          <div className="lg:col-span-3 space-y-3">
+          <div className="lg:col-span-2 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-brand-gold-400 mb-4">
               Quick Links
             </h4>
@@ -135,27 +166,55 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Contact Details */}
-          <div className="lg:col-span-2 space-y-3">
+          <div className="lg:col-span-3 space-y-3">
             <h4 className="text-xs font-bold uppercase tracking-widest text-brand-gold-400 mb-4">
               Booking Helpline
             </h4>
-            <div className="space-y-2 text-sm">
-              <p className="text-xs text-slate-400">Call / WhatsApp:</p>
-              <a
-                href={`tel:${COMPANY.rawPhone}`}
-                className="font-bold text-white hover:text-brand-gold-300 text-sm block"
-              >
-                {COMPANY.phone}
-              </a>
-              <p className="text-xs text-slate-400 pt-2">Instagram:</p>
-              <a
-                href={COMPANY.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-xs text-brand-gold-400 hover:underline block"
-              >
-                {COMPANY.instagramHandle}
-              </a>
+            <div className="space-y-2.5 text-sm">
+              <div>
+                <p className="text-[11px] text-slate-400">24/7 Phone Booking:</p>
+                <div className="space-y-0.5 mt-0.5">
+                  <a
+                    href={`tel:${COMPANY.rawPhone}`}
+                    className="font-bold text-white hover:text-brand-gold-300 text-sm block"
+                  >
+                    {COMPANY.phone}
+                  </a>
+                  <a
+                    href={`tel:${COMPANY.rawSecondaryPhone}`}
+                    className="font-bold text-white hover:text-brand-gold-300 text-sm block"
+                  >
+                    {COMPANY.secondaryPhone}
+                  </a>
+                </div>
+              </div>
+
+              <div>
+                <p className="text-[11px] text-slate-400">Email Support:</p>
+                <a
+                  href={`mailto:${COMPANY.email}`}
+                  className="text-xs text-brand-gold-300 hover:text-brand-gold-200 block truncate"
+                >
+                  {COMPANY.email}
+                </a>
+              </div>
+
+              <div>
+                <p className="text-[11px] text-slate-400">Social Channels:</p>
+                <div className="flex items-center gap-3 mt-1 text-xs">
+                  <a href={COMPANY.youtube} target="_blank" rel="noopener noreferrer" className="text-red-400 hover:underline">
+                    YouTube
+                  </a>
+                  <span className="text-slate-600">•</span>
+                  <a href={COMPANY.facebook} target="_blank" rel="noopener noreferrer" className="text-blue-400 hover:underline">
+                    Facebook
+                  </a>
+                  <span className="text-slate-600">•</span>
+                  <a href={COMPANY.instagram} target="_blank" rel="noopener noreferrer" className="text-pink-400 hover:underline">
+                    Instagram
+                  </a>
+                </div>
+              </div>
             </div>
           </div>
 
@@ -165,7 +224,7 @@ export const Footer: React.FC = () => {
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
           <p>© {COMPANY.copyrightYear} Sri Guru Tours and Travels. All rights reserved.</p>
           <div className="flex items-center gap-2">
-            <span>Crafted for premium travel experiences</span>
+            <span>24 Hours Service Everyday • A/C & Non-A/C Available</span>
           </div>
         </div>
 

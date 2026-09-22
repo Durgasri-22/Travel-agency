@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Phone, MessageSquare, MapPin, Send, Clock, CheckCircle2, ShieldCheck } from 'lucide-react';
+import { Phone, MessageSquare, MapPin, Send, Clock, CheckCircle2, ShieldCheck, Mail, User } from 'lucide-react';
 import { COMPANY, createWhatsAppUrl } from '../data/company';
 
 export const Contact: React.FC = () => {
@@ -56,7 +56,7 @@ export const Contact: React.FC = () => {
             CONTACT & <span className="text-gold-metallic">BOOKINGS</span>
           </h2>
           <p className="mt-4 text-slate-300 text-sm sm:text-base leading-relaxed">
-            Fill out the form below or call us directly. We are ready to assist you with quick quotes and custom travel itineraries.
+            Fill out the form below or call us directly. We are ready 24/7 to assist you with quick quotes and custom travel itineraries across South India.
           </p>
         </div>
 
@@ -78,27 +78,40 @@ export const Contact: React.FC = () => {
                     Sri Guru
                   </h3>
                   <p className="text-xs text-brand-gold-300 uppercase tracking-wider font-semibold">
-                    Tours and Travels
+                    {COMPANY.tamilName}
                   </p>
+                  <div className="flex items-center gap-1.5 mt-1 text-[11px] text-slate-400">
+                    <User className="w-3 h-3 text-brand-gold-400" />
+                    <span>Proprietor: <strong className="text-slate-200">{COMPANY.proprietor}</strong></span>
+                  </div>
                 </div>
               </div>
 
               {/* Direct Info List */}
               <div className="space-y-4">
                 
-                {/* Phone */}
+                {/* Phone Numbers */}
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl bg-brand-navy-950 border border-brand-gold-500/30 text-brand-gold-400 flex items-center justify-center flex-shrink-0">
                     <Phone className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-xs text-slate-400 block font-medium">Direct Booking Phone</span>
-                    <a
-                      href={`tel:${COMPANY.rawPhone}`}
-                      className="text-base font-bold text-white hover:text-brand-gold-400 transition-colors"
-                    >
-                      {COMPANY.phone}
-                    </a>
+                    <span className="text-xs text-slate-400 block font-medium">Direct Booking Phones (24/7)</span>
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 mt-0.5">
+                      <a
+                        href={`tel:${COMPANY.rawPhone}`}
+                        className="text-sm sm:text-base font-bold text-white hover:text-brand-gold-400 transition-colors"
+                      >
+                        {COMPANY.phone}
+                      </a>
+                      <span className="hidden sm:inline text-slate-600">/</span>
+                      <a
+                        href={`tel:${COMPANY.rawSecondaryPhone}`}
+                        className="text-sm sm:text-base font-bold text-white hover:text-brand-gold-400 transition-colors"
+                      >
+                        {COMPANY.secondaryPhone}
+                      </a>
+                    </div>
                   </div>
                 </div>
 
@@ -113,35 +126,52 @@ export const Contact: React.FC = () => {
                       href={createWhatsAppUrl("Hi Sri Guru Tours and Travels, I am contacting you for a travel enquiry.")}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="text-base font-bold text-brand-gold-300 hover:text-brand-gold-200 transition-colors"
+                      className="text-sm sm:text-base font-bold text-brand-gold-300 hover:text-brand-gold-200 transition-colors"
                     >
                       Chat on WhatsApp (+91 90035 74884)
                     </a>
                   </div>
                 </div>
 
-                {/* Operating Location */}
+                {/* Email */}
+                <div className="flex items-start gap-4">
+                  <div className="w-10 h-10 rounded-xl bg-brand-navy-950 border border-brand-gold-500/30 text-brand-gold-400 flex items-center justify-center flex-shrink-0">
+                    <Mail className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <span className="text-xs text-slate-400 block font-medium">Email Address</span>
+                    <a
+                      href={`mailto:${COMPANY.email}`}
+                      className="text-sm font-semibold text-slate-200 hover:text-brand-gold-400 transition-colors break-all"
+                    >
+                      {COMPANY.email}
+                    </a>
+                  </div>
+                </div>
+
+                {/* Operating Location / Full Address */}
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl bg-brand-navy-950 border border-brand-gold-500/30 text-brand-gold-400 flex items-center justify-center flex-shrink-0">
                     <MapPin className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-xs text-slate-400 block font-medium">Headquarters / Base</span>
-                    <span className="text-sm font-semibold text-slate-200">
-                      Tamil Nadu & South India
-                    </span>
+                    <span className="text-xs text-slate-400 block font-medium">Office Address</span>
+                    <p className="text-xs sm:text-sm text-slate-300 leading-relaxed mt-0.5">
+                      {COMPANY.address}
+                    </p>
                   </div>
                 </div>
 
-                {/* Hours */}
+                {/* Hours & Availability */}
                 <div className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-xl bg-brand-navy-950 border border-brand-gold-500/30 text-brand-gold-400 flex items-center justify-center flex-shrink-0">
                     <Clock className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-xs text-slate-400 block font-medium">Availability</span>
-                    <span className="text-sm font-semibold text-slate-200">
-                      Booking Support & Enquiries Available Daily
+                    <span className="text-xs text-slate-400 block font-medium">Service Availability</span>
+                    <span className="text-xs sm:text-sm font-semibold text-emerald-400 flex items-center gap-1.5 mt-0.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                      {COMPANY.serviceAvailability}
                     </span>
                   </div>
                 </div>
@@ -173,7 +203,7 @@ export const Contact: React.FC = () => {
             {/* Factual assurance card */}
             <div className="p-4 rounded-xl bg-brand-navy-900/50 border border-slate-800 flex items-center gap-3 text-xs text-slate-400">
               <ShieldCheck className="w-5 h-5 text-brand-gold-400 flex-shrink-0" />
-              <span>Direct communication with our travel coordinator. No third-party commissions or hidden charges.</span>
+              <span>A/C and Non-A/C vehicles available with verified professional chauffeurs across Chennai and South India.</span>
             </div>
 
           </div>
@@ -247,7 +277,7 @@ export const Contact: React.FC = () => {
                     <input
                       type="text"
                       required
-                      placeholder="e.g. Ooty, Kodaikanal, Munnar"
+                      placeholder="e.g. Ooty, Kodaikanal, Munnar, Tirupati"
                       value={formData.destination}
                       onChange={(e) => setFormData({ ...formData, destination: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-brand-navy-950 border border-slate-700 text-white placeholder-slate-500 text-sm focus:outline-none focus:border-brand-gold-400 transition-colors"
@@ -296,7 +326,7 @@ export const Contact: React.FC = () => {
                       onChange={(e) => setFormData({ ...formData, vehicleRequired: e.target.value })}
                       className="w-full px-4 py-3 rounded-xl bg-brand-navy-950 border border-slate-700 text-white text-sm focus:outline-none focus:border-brand-gold-400 transition-colors"
                     >
-                      <option value="Force Traveller">Force Traveller</option>
+                      <option value="Force Traveller">Force Traveller (AC/Non-AC)</option>
                       <option value="Passenger Car / SUV">Passenger Car / SUV</option>
                       <option value="SML Mini Bus">SML Mini Bus</option>
                       <option value="Luxury Tourist Bus">Luxury Tourist Bus</option>

@@ -26,7 +26,7 @@ import {
   Save,
   MessageSquare
 } from 'lucide-react';
-import { InstagramIcon } from '../../components/Icons';
+import { InstagramIcon, YouTubeIcon, FacebookIcon } from '../../components/Icons';
 
 type TabType = 'overview' | 'bookings' | 'tours' | 'vehicles' | 'enquiries' | 'gallery' | 'settings';
 
@@ -172,9 +172,13 @@ export const AdminDashboard: React.FC = () => {
   const [selectedBooking, setSelectedBooking] = useState<BookingItem | null>(null);
   const [settingsForm, setSettingsForm] = useState({
     companyName: COMPANY.name,
+    proprietor: COMPANY.proprietor,
     phone: COMPANY.phone,
+    secondaryPhone: COMPANY.secondaryPhone,
     whatsapp: COMPANY.whatsappNumber,
     instagram: COMPANY.instagram,
+    youtube: COMPANY.youtube,
+    facebook: COMPANY.facebook,
     email: COMPANY.email,
     address: COMPANY.address,
   });
@@ -966,12 +970,36 @@ export const AdminDashboard: React.FC = () => {
 
                   <div>
                     <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2">
-                      Primary Phone Number
+                      Proprietor Name
+                    </label>
+                    <input
+                      type="text"
+                      value={settingsForm.proprietor}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, proprietor: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-gold-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2">
+                      Primary Phone (24/7)
                     </label>
                     <input
                       type="text"
                       value={settingsForm.phone}
                       onChange={(e) => setSettingsForm({ ...settingsForm, phone: e.target.value })}
+                      className="w-full px-4 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-gold-400"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2">
+                      Secondary Phone (24/7)
+                    </label>
+                    <input
+                      type="text"
+                      value={settingsForm.secondaryPhone}
+                      onChange={(e) => setSettingsForm({ ...settingsForm, secondaryPhone: e.target.value })}
                       className="w-full px-4 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-gold-400"
                     />
                   </div>
@@ -1001,30 +1029,63 @@ export const AdminDashboard: React.FC = () => {
                   </div>
                 </div>
 
-                <div>
-                  <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2">
-                    Instagram Profile URL
-                  </label>
-                  <div className="relative">
-                    <InstagramIcon className="w-4 h-4 text-pink-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
-                    <input
-                      type="url"
-                      value={settingsForm.instagram}
-                      onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
-                      className="w-full pl-10 pr-4 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-gold-400"
-                    />
+                {/* Social Media Links Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2">
+                      YouTube Channel
+                    </label>
+                    <div className="relative">
+                      <YouTubeIcon className="w-4 h-4 text-red-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="url"
+                        value={settingsForm.youtube}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, youtube: e.target.value })}
+                        className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-gold-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2">
+                      Facebook Page
+                    </label>
+                    <div className="relative">
+                      <FacebookIcon className="w-4 h-4 text-blue-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="url"
+                        value={settingsForm.facebook}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, facebook: e.target.value })}
+                        className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-gold-400"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2">
+                      Instagram Profile
+                    </label>
+                    <div className="relative">
+                      <InstagramIcon className="w-4 h-4 text-pink-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="url"
+                        value={settingsForm.instagram}
+                        onChange={(e) => setSettingsForm({ ...settingsForm, instagram: e.target.value })}
+                        className="w-full pl-10 pr-3 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-xs text-white focus:outline-none focus:border-brand-gold-400"
+                      />
+                    </div>
                   </div>
                 </div>
 
                 <div>
                   <label className="text-xs font-semibold uppercase tracking-wider text-slate-300 block mb-2">
-                    Operating Base / Address
+                    Official Registered Address
                   </label>
-                  <input
-                    type="text"
+                  <textarea
+                    rows={2}
                     value={settingsForm.address}
                     onChange={(e) => setSettingsForm({ ...settingsForm, address: e.target.value })}
-                    className="w-full px-4 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-gold-400"
+                    className="w-full px-4 py-2.5 rounded-xl bg-brand-navy-950 border border-slate-700 text-sm text-white focus:outline-none focus:border-brand-gold-400 resize-none"
                   />
                 </div>
 
