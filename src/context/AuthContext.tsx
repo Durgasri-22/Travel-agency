@@ -41,7 +41,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
 
       // 2. Strict verification that public.profiles.role === 'admin'
-      if (profile && (profile as ProfileDB).role === 'admin') {
+      if (profile && (profile as ProfileDB).role?.toLowerCase().trim() === 'admin') {
         return true;
       }
 
