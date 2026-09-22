@@ -24,10 +24,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const isConfigured = isSupabaseConfigured();
 
   const checkAdminRole = async (currentUser: User): Promise<boolean> => {
-    if (!isConfigured || !currentUser) return false;
+    if (!isConfigured || !currentUser || !currentUser.id) return false;
 
     try {
-      // 1. Retrieve the user's admin profile from the Supabase profiles table
+      // 1. Retrieve the user's admin profile from the Supabase public.profiles table
+      // where public.profiles.id matches the Supabase Auth user's UUID (auth.uid())
       const { data: profile, error } = await supabase
         .from('profiles')
         .select('id, email, role')
@@ -36,20 +37,11 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) {
         console.error('Error fetching admin profile from Supabase:', error.message);
-        // If profiles table query fails, also verify if app_metadata/user_metadata contains role: 'admin'
-        if (currentUser.app_metadata?.role === 'admin' || currentUser.user_metadata?.role === 'admin') {
-          return true;
-        }
         return false;
       }
 
-      // 2. Strict verification that profile role === 'admin'
+      // 2. Strict verification that public.profiles.role === 'admin'
       if (profile && (profile as ProfileDB).role === 'admin') {
-        return true;
-      }
-
-      // 3. Fallback check on user app_metadata if set in Supabase Auth
-      if (currentUser.app_metadata?.role === 'admin') {
         return true;
       }
 
